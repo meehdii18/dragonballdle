@@ -1,4 +1,3 @@
-import React from 'react';
 import * as NavigationMenu from '@radix-ui/react-navigation-menu';
 import * as Dialog from '@radix-ui/react-dialog';
 import { QuestionMarkCircledIcon, Cross2Icon } from '@radix-ui/react-icons';
