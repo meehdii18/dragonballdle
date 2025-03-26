@@ -2,7 +2,7 @@ export const characters = [
     {
       id: 1,
       name: "Goku",
-      image: "../assets/characters/Goku.png",
+      image: "/images/characters/goku-endpng.png",
       gender: "masculin",
       species: "Saiyan",
       height: "175 cm",
@@ -12,7 +12,7 @@ export const characters = [
     {
       id: 2,
       name: "Vegeta",
-      image: "../assets/characters/Vegeta.png",
+      image: "/images/characters/vegetapng.png",
       gender: "masculin",
       species: "Saiyan",
       height: "164 cm",
@@ -20,19 +20,9 @@ export const characters = [
       firstArc: "Saga Saiyan",
     },
     {
-      id: 3,
-      name: "Bulma",
-      image: "../assets/characters/Bulma.png",
-      gender: "féminin",
-      species: "Humaine",
-      height: "165 cm",
-      age: "45",
-      firstArc: "Saga Pilaf",
-    },
-    {
       id: 4,
       name: "Piccolo",
-      image: "../assets/characters/Piccolo.png",
+      image: "/images/characters/piccolo-endpng.png",
       gender: "masculin",
       species: "Namek",
       height: "226 cm",
@@ -42,7 +32,7 @@ export const characters = [
     {
       id: 5,
       name: "Freezer",
-      image: "../assets/characters/Frieza.png",
+      image: "/images/characters/frieza-1st-formpng.png",
       gender: "masculin",
       species: "Alien",
       height: "158 cm",
@@ -52,7 +42,7 @@ export const characters = [
     {
       id: 6,
       name: "Gohan",
-      image: "../assets/characters/Gohan.png",
+      image: "/images/characters/teen-gohanpng.png",
       gender: "masculin",
       species: "Demi-Saiyan",
       height: "176 cm",
@@ -62,7 +52,7 @@ export const characters = [
     {
       id: 7,
       name: "Trunks",
-      image: "../assets/characters/Trunks.png",
+      image: "/images/characters/trunkspng.png",
       gender: "masculin",
       species: "Demi-Saiyan",
       height: "170 cm",
@@ -72,7 +62,7 @@ export const characters = [
     {
       id: 8,
       name: "Cell",
-      image: "../assets/characters/Cell.png",
+      image: "/images/characters/cell-perfect-formpng.png",
       gender: "masculin",
       species: "Bio-Androïde",
       height: "213 cm",
@@ -82,7 +72,7 @@ export const characters = [
     {
       id: 9,
       name: "Majin Boo",
-      image: "../assets/characters/MajinBuu.png",
+      image: "/images/characters/majin-buupng.png",
       gender: "masculin",
       species: "Majin",
       height: "Inconnu",
@@ -92,7 +82,7 @@ export const characters = [
     {
       id: 10,
       name: "Krillin",
-      image: "../assets/characters/Krillin.png",
+      image: "/images/characters/krillinpng.png",
       gender: "masculin",
       species: "Humain",
       height: "153 cm",

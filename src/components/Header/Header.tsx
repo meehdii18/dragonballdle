@@ -8,7 +8,7 @@ function Header() {
     <header className="header">
       <div className="logo-container">
         <img 
-          src="/star-ball-1.png" 
+          src="/images/star-ball-1.png" 
           alt="Dragon Ball" 
           className="dragon-ball-icon" 
         />
