@@ -1,0 +1,51 @@
+name: Build and deploy
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ⛏
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+      - name: Install dependencies
+        run: npm ci
+      - name: Build dependencies
+        run: npm run build
+      - name: Archive production artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: dist
+          path: dist
+  deploy:
+    name: Deploy 🚀
+    needs: build
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository
+        uses: actions/checkout@main
+      - name: Download artifact
+        uses: actions/download-artifact@main
+        with: 
+          name: dist
+          path: dist
+      - name: Sync files to hosting
+        uses: Dylan700/sftp-upload-action@v1.2.3
+        with:
+          server: access-5017291800.webspace-host.com
+          username: a2031694
+          password: ${{secrets.sftp_password}}
+          port: 22
+          dry-run: false  # Set to true for testing
+          uploads: |
+            dist/ => /
+          ignore: |
+            **/*.map  # Ignore source maps
+            node_modules/  # Ignore dependencies
+          delete: false  
