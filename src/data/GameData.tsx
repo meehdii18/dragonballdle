@@ -1,3 +1,5 @@
+// TODO : Ajouter les séries animées où sont présents les personnages
+
 export const characters = [
     {
       id: 1,
