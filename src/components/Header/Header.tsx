@@ -14,7 +14,6 @@ import {
   ModalCloseButton,
   Text,
 } from '@chakra-ui/react';
-import { QuestionIcon } from '@chakra-ui/icons';
 import { keyframes } from '@emotion/react';
 
 const float = keyframes`
@@ -78,11 +77,13 @@ function Header() {
 
       <Flex gap={4}>
         <Button 
-          leftIcon={<QuestionIcon />}
           onClick={onHelpOpen}
           variant="ghost"
-          _hover={{ bg: 'whiteAlpha.300' }} 
+          _hover={{ bg: 'whiteAlpha.300', color: 'dragonball.300' }} 
           aria-label="Comment jouer"
+          color="whiteAlpha.1000"
+          fontFamily={"Saiyan-Sans"}
+          fontSize={30}
         >
           Comment jouer
         </Button>
@@ -90,8 +91,11 @@ function Header() {
         <Button 
           onClick={onStatsOpen}
           variant="ghost"
-          _hover={{ bg: 'whiteAlpha.300' }}
+          _hover={{ bg: 'whiteAlpha.300', color: 'dragonball.300' }}
           aria-label="Statistiques"
+          color="whiteAlpha.1000"
+          fontFamily={"Saiyan-Sans"}
+          fontSize={30}
         >
           Statistiques
         </Button>
@@ -99,9 +103,9 @@ function Header() {
         {/* Modal pour les règles du jeu */}
         <Modal isOpen={isHelpOpen} onClose={onHelpClose} isCentered>
           <ModalOverlay backdropFilter="blur(8px)" />
-          <ModalContent>
+          <ModalContent bg="gray.700">
             <ModalHeader color="orange.700">Comment jouer à DragonBalldle</ModalHeader>
-            <ModalCloseButton />
+            <ModalCloseButton/>
             <ModalBody pb={6}>
               <Text>Devine le personnage de Dragon Ball en X essais maximum.</Text>
               <Text>Après chaque essai, les indices de couleur t'indiqueront si tu te rapproches.</Text>
@@ -115,9 +119,9 @@ function Header() {
         {/* Modal pour les statistiques */}
         <Modal isOpen={isStatsOpen} onClose={onStatsClose} isCentered>
           <ModalOverlay backdropFilter="blur(8px)" />
-          <ModalContent>
+          <ModalContent bg="gray.700">
             <ModalHeader color="orange.700">Statistiques</ModalHeader>
-            <ModalCloseButton />
+            <ModalCloseButton/>
             <ModalBody pb={6}>
               <Text>Parties jouées: 0</Text>
               <Text>Parties gagnées: 0</Text>

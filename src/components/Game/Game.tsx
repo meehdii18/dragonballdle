@@ -15,9 +15,17 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  useOutsideClick
+  useOutsideClick,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  ModalCloseButton,
 } from '@chakra-ui/react';
-import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import { SearchIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
 
 function Game() {
@@ -26,6 +34,9 @@ function Game() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
+  const [dailyCharacter, setDailyCharacter] = useState<any>(null);
+  const { isOpen: isResetModalOpen, onOpen: onResetModalOpen, onClose: onResetModalClose } = useDisclosure();
+
   
   useOutsideClick({
     ref: popoverRef,
@@ -33,6 +44,11 @@ function Game() {
   });
 
   useEffect(() => {
+    const char = getDailyChar();
+    setDailyCharacter(char);
+
+    console.log(char);
+
     if (searchValue.trim().length >= 1) {
       const firstLetter = searchValue.trim().charAt(0).toLowerCase();
       const filteredSuggestions = characters
@@ -52,6 +68,15 @@ function Game() {
     }
   }, [searchValue]);
 
+  const resetDailyCharacter = () => {
+    const newChar = dailyRandomChar();
+    localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
+    localStorage.setItem('characterTime', new Date().getTime().toString());
+    
+    setDailyCharacter(newChar);
+    onResetModalClose();
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
@@ -59,7 +84,11 @@ function Game() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Recherche de personnage:", searchValue);
-    // Logique pour vérifier si c'est le bon personnage
+    // Vérifie si le personnage saisi est le bon personnage du jour
+    if (dailyCharacter && searchValue.toLowerCase() === dailyCharacter.name.toLowerCase()) {
+      console.log("Bravo! Vous avez trouvé le personnage du jour!");
+      // Vous pouvez ajouter ici votre logique pour afficher un message de victoire
+    }
     setIsPopoverOpen(false);
   };
 
@@ -76,6 +105,34 @@ function Game() {
       inputRef.current.focus();
     }
   };
+
+  const dailyRandomChar = () => {
+    const max = characters.length;
+    const randomIndex = Math.floor(Math.random() * max);
+    return characters[randomIndex];
+  }
+
+  const getDailyChar = () => {
+    const storedChar = localStorage.getItem('dailyCharacter');
+    const storedTime = localStorage.getItem('characterTime');
+
+    if(storedTime && storedChar){
+      const now = new Date().getTime();
+      const then = parseInt(storedTime, 10);
+      const hourSinceChange = (now - then) / (1000*60*60);
+
+      if(hourSinceChange < 24){
+        return JSON.parse(storedChar);
+      }
+    }
+
+    // Génère un nouveau personnage si pas de personnage stocké ou si 24h sont passées
+    const newChar = dailyRandomChar();
+    localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
+    localStorage.setItem('characterTime', new Date().getTime().toString());
+    
+    return newChar;
+  }
 
   return (
     <Box
@@ -283,10 +340,65 @@ function Game() {
           </Flex>
         </Box>
 
+
         <Box className="previous-guesses" width="100%" maxWidth="600px" mt="2rem">
+          {/* Affichage du personnage du jour et bouton de reset (pour le débogage) */}
+          {dailyCharacter && (
+            <Flex 
+              direction="column" 
+              bg="rgba(0, 0, 0, 0.3)" 
+              p={4} 
+              borderRadius="md" 
+              border="1px solid rgba(255, 255, 255, 0.1)"
+            >
+              <Text color="white" fontSize="sm" opacity={0.7} mb={2}>
+                Personnage du jour (à masquer en production): {dailyCharacter.name}
+              </Text>
+              
+              <Button 
+                leftIcon={<RepeatIcon />} 
+                size="sm" 
+                colorScheme="red" 
+                variant="outline"
+                onClick={onResetModalOpen}
+                alignSelf="flex-start"
+              >
+                Changer le personnage du jour
+              </Button>
+            </Flex>
+          )}
           {/* Ici tu pourras afficher les essais précédents */}
         </Box>
       </Box>
+      
+            {/* Modal de confirmation pour le reset */}
+      <Modal isOpen={isResetModalOpen} onClose={onResetModalClose}>
+        <ModalOverlay backdropFilter="blur(8px)" />
+        <ModalContent bg="gray.800" color="white">
+          <ModalHeader color="orange.300">Réinitialiser le personnage</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>
+              Êtes-vous sûr de vouloir changer le personnage du jour ?
+            </Text>
+            <Text mt={2} fontSize="sm" color="red.300">
+              Attention : Cette action réinitialisera également toutes les tentatives en cours.
+            </Text>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button variant="ghost" mr={3} onClick={onResetModalClose}>
+              Annuler
+            </Button>
+            <Button 
+              colorScheme="red" 
+              onClick={resetDailyCharacter}
+            >
+              Réinitialiser
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 }
