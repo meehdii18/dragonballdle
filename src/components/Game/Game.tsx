@@ -47,8 +47,6 @@ function Game() {
     const char = getDailyChar();
     setDailyCharacter(char);
 
-    console.log(char);
-
     if (searchValue.trim().length >= 1) {
       const firstLetter = searchValue.trim().charAt(0).toLowerCase();
       const filteredSuggestions = characters
@@ -68,10 +66,26 @@ function Game() {
     }
   }, [searchValue]);
 
+  const getDayId = () => {
+    const today = `${new Date().getUTCFullYear()}${String(new Date().getUTCMonth() + 1).padStart(2, '0')}${String(new Date().getUTCDate()).padStart(2, '0')}`;
+    return today;
+  }
+
+  const hashDayId = (str: string) => {
+    let hash = 0;
+    for (let i=0; i<str.length; i++){
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 32 bits entier
+    }
+    return Math.abs(hash);
+  }
+
   const resetDailyCharacter = () => {
     const newChar = dailyRandomChar();
     localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
     localStorage.setItem('characterTime', new Date().getTime().toString());
+    localStorage.setItem('characterDayId', getDayId());
     
     setDailyCharacter(newChar);
     onResetModalClose();
@@ -84,9 +98,8 @@ function Game() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Recherche de personnage:", searchValue);
-    // Vérifie si le personnage saisi est le bon personnage du jour
     if (dailyCharacter && searchValue.toLowerCase() === dailyCharacter.name.toLowerCase()) {
-      console.log("Bravo! Vous avez trouvé le personnage du jour!");
+      console.log("VICTOIRE");
       // Vous pouvez ajouter ici votre logique pour afficher un message de victoire
     }
     setIsPopoverOpen(false);
@@ -108,31 +121,30 @@ function Game() {
 
   const dailyRandomChar = () => {
     const max = characters.length;
-    const randomIndex = Math.floor(Math.random() * max);
-    return characters[randomIndex];
-  }
+    const dayId = getDayId();
+    const hash = hashDayId(dayId);
+    const index = hash%max;
+    return characters[index];
+  };
 
   const getDailyChar = () => {
     const storedChar = localStorage.getItem('dailyCharacter');
     const storedTime = localStorage.getItem('characterTime');
-
-    if(storedTime && storedChar){
-      const now = new Date().getTime();
-      const then = parseInt(storedTime, 10);
-      const hourSinceChange = (now - then) / (1000*60*60);
-
-      if(hourSinceChange < 24){
-        return JSON.parse(storedChar);
-      }
+    const storedDayId = localStorage.getItem('characterDayId');
+    const currentDayId = getDayId();
+  
+    if (storedChar && storedDayId === currentDayId) {
+      return JSON.parse(storedChar);
     }
-
-    // Génère un nouveau personnage si pas de personnage stocké ou si 24h sont passées
+  
+    // Génère un nouveau personnage si pas de personnage stocké ou si le jour a changé
     const newChar = dailyRandomChar();
     localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
     localStorage.setItem('characterTime', new Date().getTime().toString());
+    localStorage.setItem('characterDayId', currentDayId);
     
     return newChar;
-  }
+  };
 
   return (
     <Box
