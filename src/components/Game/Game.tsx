@@ -16,26 +16,22 @@ import {
   PopoverContent,
   PopoverBody,
   useOutsideClick,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  ModalCloseButton,
+  useDisclosure
 } from '@chakra-ui/react';
 import { SearchIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
 
 function Game() {
   const [searchValue, setSearchValue] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<Array<{ id: number; name: string; image: string }>>([]);
+  const [suggestions, setSuggestions] = useState<Array<{  id: number; name: string; image: string }>>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const [dailyCharacter, setDailyCharacter] = useState<any>(null);
   const { isOpen: isResetModalOpen, onOpen: onResetModalOpen, onClose: onResetModalClose } = useDisclosure();
+  const [guesses, setGuesses] = useState<Array<any>>([]);
+  const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
+  const maxGuesses = 10;
 
   
   useOutsideClick({
@@ -46,12 +42,31 @@ function Game() {
   useEffect(() => {
     const char = getDailyChar();
     setDailyCharacter(char);
-
+  
+    // Charger les essais précédents s'ils existent et sont de la même journée
+    const savedGuesses = localStorage.getItem('dragonballdle-guesses');
+    const savedDate = localStorage.getItem('dragonballdle-date');
+    const currentDayId = getDayId();
+    
+    if (savedGuesses && savedDate === currentDayId) {
+      const parsedGuesses = JSON.parse(savedGuesses);
+      setGuesses(parsedGuesses);
+      
+      // Vérifier l'état du jeu
+      if (parsedGuesses.some(guess => guess.result.name === 'correct')) {
+        setGameStatus('won');
+      } else if (parsedGuesses.length >= maxGuesses) {
+        setGameStatus('lost');
+      }
+    } else if (savedDate !== currentDayId) {
+      // Nouveau jour, effacer les anciens essais
+      localStorage.removeItem('dragonballdle-guesses');
+    }
+  
     if (searchValue.trim().length >= 1) {
-      const firstLetter = searchValue.trim().charAt(0).toLowerCase();
       const filteredSuggestions = characters
         .filter(character => 
-          character.name.toLowerCase().charAt(0) === firstLetter)
+          character.name.toLowerCase().includes(searchValue.toLowerCase()))
         .map(character => ({ 
           id: character.id, 
           name: character.name,
@@ -81,11 +96,168 @@ function Game() {
     return Math.abs(hash);
   }
 
+  const compareCharacters = (guessed: any, target: any) => {
+    return {
+      name: guessed.name.toLowerCase() === target.name.toLowerCase() ? 'correct' : 'incorrect',
+      species: compareSpecies(guessed.species, target.species),
+      height: compareHeight(guessed.height, target.height),
+      age: compareAge(guessed.age, target.age),
+      firstArc: compareFirstArc(guessed.firstArc, target.firstArc),
+      animeAppearances: compareAnimeAppearances(guessed.animeAppearances, target.animeAppearances)
+    };
+  };
+
+  const compareSpecies = (guessedSpecies: string, targetSpecies: string) => {
+    // Liste des espèces apparentées
+    const relatedSpecies: Record<string, string[]> = {
+      'Saiyan': ['Demi-Saiyan', 'Quart-Saiyan'],
+      'Demi-Saiyan': ['Saiyan', 'Quart-Saiyan'],
+      'Quart-Saiyan': ['Saiyan', 'Demi-Saiyan'],
+      'Bio-Androïde': ['Androïde', 'Cyborg'],
+      'Androïde': ['Bio-Androïde', 'Cyborg'],
+      'Cyborg': ['Androïde', 'Bio-Androïde']
+    };
+  
+    if (guessedSpecies === targetSpecies) {
+      return 'correct';
+    } else if (relatedSpecies[guessedSpecies] && relatedSpecies[guessedSpecies].includes(targetSpecies)) {
+      return 'close';
+    }
+    return 'incorrect';
+  };
+
+  const compareHeight = (guessedHeight: string, targetHeight: string) => {
+    if (guessedHeight === 'Inconnu' || targetHeight === 'Inconnu') {
+      return guessedHeight === targetHeight ? 'correct' : 'incorrect';
+    }
+  
+    // Extraire les valeurs numériques des hauteurs
+    const guessedValue = parseInt(guessedHeight.replace(/[^0-9]/g, ''), 10);
+    const targetValue = parseInt(targetHeight.replace(/[^0-9]/g, ''), 10);
+  
+    if (isNaN(guessedValue) || isNaN(targetValue)) {
+      return 'incorrect';
+    }
+  
+    if (Math.abs(guessedValue - targetValue) <= 5) {
+      return 'correct';
+    } else if (Math.abs(guessedValue - targetValue) <= 20) {
+      return 'close';
+    }
+    return guessedValue < targetValue ? 'lower' : 'higher';
+  };
+
+  const compareAge = (guessedAge: string, targetAge: string) => {
+    if (guessedAge === 'Inconnu' || targetAge === 'Inconnu') {
+      return guessedAge === targetAge ? 'correct' : 'incorrect';
+    }
+  
+    const guessedValue = parseInt(guessedAge, 10);
+    const targetValue = parseInt(targetAge, 10);
+  
+    if (isNaN(guessedValue) || isNaN(targetValue)) {
+      return 'incorrect';
+    }
+  
+    if (Math.abs(guessedValue - targetValue) <= 3) {
+      return 'correct';
+    } else if (Math.abs(guessedValue - targetValue) <= 10) {
+      return 'close';
+    }
+    return guessedValue < targetValue ? 'lower' : 'higher';
+  };
+
+  const arcsByAnime = {
+    "Dragon Ball": [
+      "Saga Pilaf",
+      "Saga 21e Tenkaichi Budokai",
+      "Saga Red Ribbon",
+      "Saga Piccolo Daimaô",
+      "Saga 23e Tenkaichi Budokai"
+    ],
+    "Dragon Ball Z": [
+      "Saga Saiyan",
+      "Saga Namek",
+      "Saga Freezer",
+      "Saga Garlick Jr.",
+      "Saga Androïdes",
+      "Saga Cell",
+      "Saga Majin Boo"
+    ],
+    "Dragon Ball GT": [
+      "Saga Baby",
+      "Saga Super C-17",
+      "Saga Dragons Maléfiques"
+    ],
+    "Dragon Ball Super": [
+      "Saga Battle of Gods",
+      "Saga Resurrection F",
+      "Saga Tournoi de Champa",
+      "Saga Black Goku",
+      "Saga Tournoi du Pouvoir"
+    ]
+  };
+
+  const getAnimeFromArc = (arc: string): string | null => {
+    for (const [anime, arcs] of Object.entries(arcsByAnime)) {
+      if (arcs.includes(arc)) {
+        return anime;
+      }
+    }
+    return null;
+  };
+
+  const compareFirstArc = (guessedArc: string, targetArc: string) => {
+    // Même saga = vert
+    if (guessedArc === targetArc) {
+      return 'correct';
+    }
+    
+    // Déterminer les animes correspondants
+    const guessedAnime = getAnimeFromArc(guessedArc);
+    const targetAnime = getAnimeFromArc(targetArc);
+    
+    // Même anime = orange/jaune
+    if (guessedAnime && targetAnime && guessedAnime === targetAnime) {
+      return 'close';
+    }
+    
+    // Différents animes = rouge
+    return 'incorrect';
+  };
+
+  const compareAnimeAppearances = (guessedAppearances: string[], targetAppearances: string[]) => {
+    // Vérifier si les tableaux existent
+    if (!guessedAppearances || !targetAppearances) {
+      return 'incorrect';
+    }
+  
+    // Si toutes les apparitions sont identiques
+    if (guessedAppearances.length === targetAppearances.length && 
+        guessedAppearances.every(show => targetAppearances.includes(show))) {
+      return 'correct';
+    }
+  
+    // S'il y a au moins une apparition en commun
+    if (guessedAppearances.some(show => targetAppearances.includes(show))) {
+      return 'close';
+    }
+  
+    return 'incorrect';
+  };
+
   const resetDailyCharacter = () => {
     const newChar = dailyRandomChar();
     localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
     localStorage.setItem('characterTime', new Date().getTime().toString());
     localStorage.setItem('characterDayId', getDayId());
+    
+    // Réinitialiser les essais
+    setGuesses([]);
+    localStorage.removeItem('dragonballdle-guesses');
+    
+    // Réinitialiser l'état du jeu
+    setGameStatus('playing');
     
     setDailyCharacter(newChar);
     onResetModalClose();
@@ -97,12 +269,84 @@ function Game() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Recherche de personnage:", searchValue);
-    if (dailyCharacter && searchValue.toLowerCase() === dailyCharacter.name.toLowerCase()) {
-      console.log("VICTOIRE");
-      // Vous pouvez ajouter ici votre logique pour afficher un message de victoire
+    
+    if (!searchValue.trim() || !dailyCharacter) return;
+    
+    // Trouver le personnage correspondant dans la liste
+    const guessedCharacter = characters.find(
+      character => character.name.toLowerCase() === searchValue.toLowerCase()
+    );
+    
+    if (!guessedCharacter) {
+      // Personnage non trouvé
+      return;
     }
+    
+    // Empêcher de soumettre le même personnage deux fois
+    if (guesses.some(guess => guess.character.name === guessedCharacter.name)) {
+      return;
+    }
+  
+    // Comparer le personnage deviné avec le personnage cible
+    const comparisonResult = compareCharacters(guessedCharacter, dailyCharacter);
+    
+    // Créer un nouvel essai
+    const newGuess = {
+      character: guessedCharacter,
+      result: comparisonResult
+    };
+    
+    // Ajouter l'essai à la liste des essais
+    const updatedGuesses = [...guesses, newGuess];
+    setGuesses(updatedGuesses);
+    
+    // Sauvegarder les essais dans localStorage
+    localStorage.setItem('dragonballdle-guesses', JSON.stringify(updatedGuesses));
+    localStorage.setItem('dragonballdle-date', getDayId());
+    
+    // Vérifier si le joueur a gagné
+    if (comparisonResult.name === 'correct') {
+      setGameStatus('won');
+      updateStats(true, updatedGuesses.length);
+    } 
+    // Vérifier si le joueur a perdu (nombre maximum d'essais atteint)
+    else if (updatedGuesses.length >= maxGuesses) {
+      setGameStatus('lost');
+      updateStats(false, maxGuesses);
+    }
+    
+    // Réinitialiser le champ de recherche
+    setSearchValue('');
     setIsPopoverOpen(false);
+  };
+
+  // Mettre à jour les statistiques du joueur
+  const updateStats = (won: boolean, attempts: number) => {
+    // Récupérer les statistiques existantes du localStorage
+    const statsJson = localStorage.getItem('dragonballdle-stats');
+    
+    let stats = statsJson ? JSON.parse(statsJson) : {
+      played: 0,
+      won: 0,
+      streak: 0,
+      maxStreak: 0,
+      distribution: [0, 0, 0, 0, 0, 0]
+    };
+    
+    // Mettre à jour les statistiques
+    stats.played += 1;
+    
+    if (won) {
+      stats.won += 1;
+      stats.streak += 1;
+      stats.distribution[attempts - 1] += 1;
+      stats.maxStreak = Math.max(stats.maxStreak, stats.streak);
+    } else {
+      stats.streak = 0;
+    }
+    
+    // Sauvegarder les statistiques mises à jour
+    localStorage.setItem('dragonballdle-stats', JSON.stringify(stats));
   };
 
   const clearSearch = () => {
@@ -353,7 +597,224 @@ function Game() {
         </Box>
 
 
-        <Box className="previous-guesses" width="100%" maxWidth="600px" mt="2rem">
+        <Box className="previous-guesses" width="100%" maxWidth="2000px" mt="2rem">
+          {/* Affichage des essais précédents */}
+          {guesses.length > 0 && (
+            <Box 
+              bg="rgba(0, 0, 0, 0.3)" 
+              p={4} 
+              borderRadius="md" 
+              border="1px solid rgba(255, 255, 255, 0.1)"
+            >
+              <Heading as="h3" size="md" mb={4} color="orange.300">
+                Essais ({guesses.length}/{maxGuesses})
+              </Heading>
+              
+              <Box overflowX="auto">
+                <Box as="table" width="100%" sx={{ borderCollapse: "separate", borderSpacing: "1rem" }}>
+                  <Box as="thead">
+                    <Box as="tr">
+                      <Box as="th" p={2} fontWeight="bold">Image</Box>
+                      <Box as="th" p={2} fontWeight="bold">Nom</Box>
+                      <Box as="th" p={2} fontWeight="bold">Espèce</Box>
+                      <Box as="th" p={2} fontWeight="bold">Taille</Box>
+                      <Box as="th" p={2} fontWeight="bold">Âge</Box>
+                      <Box as="th" p={2} fontWeight="bold">Première apparition</Box>
+                      <Box as="th" p={2} fontWeight="bold">Séries</Box>
+                    </Box>
+                  </Box>
+                  <Box as="tbody">
+                    {guesses.map((guess, index) => (
+                      <Box as="tr" key={index}>
+
+                      <Box 
+                          as="td" 
+                          p={2}
+                          textAlign="center"
+                        >
+                          <Image
+                            src={guess.character.image}
+                            alt={guess.character.name}
+                            boxSize="40px"
+                            borderRadius="full"
+                            objectFit="cover"
+                            mx="auto"
+                          />
+                        </Box>
+
+                        <Box 
+                        as="td" 
+                        p={2}
+                        m={10}
+                        bgColor={guess.result.name === 'correct' ? 'green.500' : 'red.500'}
+                        borderRadius="md"
+                        opacity={0.7}
+                        textAlign="center"
+                      >
+                        {guess.character.name}
+                      </Box>
+
+                      <Box 
+                      as="td" 
+                      p={2}
+                      bgColor={
+                        guess.result.species === 'correct' ? 'green.500' : 
+                        guess.result.species === 'close' ? 'yellow.500' : 
+                        'red.500'
+                      }
+                      opacity={0.7}
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                      {guess.character.species}
+                    </Box>
+
+                    <Box 
+                      as="td" 
+                      p={2}
+                      bgColor={
+                        guess.result.height === 'correct' ? 'green.500' :
+                        guess.result.height === 'close' ? 'yellow.500' : 
+                        'red.500'  
+                      }
+                      opacity={0.7}
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                      {guess.character.height}
+                      {(guess.result.height === 'lower' || guess.result.height === 'higher') && (
+                        <Text as="span" ml={1}>
+                          {guess.result.height === 'lower' ? '↓' : '↑'}
+                        </Text>
+                      )}
+                    </Box>
+
+                    <Box 
+                      as="td" 
+                      p={2}
+                      bgColor={
+                        guess.result.age === 'correct' ? 'green.500' :
+                        guess.result.age === 'close' ? 'yellow.500' : 
+                        'red.500'  // Toujours rouge, même pour 'lower' ou 'higher'
+                      }
+                      opacity={0.7}
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                      {guess.character.age}
+                      {(guess.result.age === 'lower' || guess.result.age === 'higher') && (
+                        <Text as="span" ml={1}>
+                          {guess.result.age === 'lower' ? '↓' : '↑'}
+                        </Text>
+                      )}
+                    </Box>
+
+                        <Box 
+                          as="td" 
+                          p={2}
+                          bgColor={
+                            guess.result.firstArc === 'correct' ? 'green.500' :
+                            guess.result.firstArc === 'close' ? 'yellow.500' : 
+                            'red.500'
+                          }
+                          opacity={0.7}
+                          borderRadius="md"
+                          textAlign="center"
+                        >
+                            {guess.character.firstArc}
+                            {guess.result.firstArc !== 'correct' && guess.result.firstArc !== 'close' && (
+                            <Text as="span" ml={1} fontWeight="bold">
+                              {getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↓' : 
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↓' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↑' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↑' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↑' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↓' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
+                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' : ''
+                              }
+                            </Text>
+                          )}
+                        </Box>
+
+                        <Box 
+                          as="td" 
+                          p={2}
+                          bgColor={
+                            guess.result.animeAppearances === 'correct' ? 'green.500' :
+                            guess.result.animeAppearances === 'close' ? 'yellow.500' : 
+                            'red.500'
+                          }
+                          opacity={0.7}
+                          borderRadius="md"
+                          textAlign="center"
+                        >
+                          {/* Remplacer l'affichage du nombre par la liste des séries */}
+                          <Flex direction="column" alignItems="center" gap={1}>
+                            {guess.character.animeAppearances.map((anime: string, i: number) => (
+                              <Text key={i} fontSize="xs" lineHeight="1.2">
+                                {anime.replace('Dragon Ball', 'DB')}
+                              </Text>
+                            ))}
+                          </Flex>
+                        </Box>                  
+
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          )}
+          
+          {/* Affichage du résultat du jeu */}
+          {gameStatus === 'won' && (
+            <Box 
+              mt={4} 
+              p={6} 
+              bg="rgba(0, 100, 0, 0.6)" 
+              borderRadius="md" 
+              textAlign="center"
+              border="1px solid rgba(100, 255, 100, 0.3)"
+            >
+              <Heading color="green.300" mb={2}>
+                VICTOIRE !
+              </Heading>
+              <Text fontSize="xl">
+                Tu as trouvé {dailyCharacter.name} en {guesses.length} essai{guesses.length > 1 ? 's' : ''} !
+              </Text>
+            </Box>
+          )}
+          
+          {gameStatus === 'lost' && (
+            <Box 
+              mt={4} 
+              p={6} 
+              bg="rgba(100, 0, 0, 0.6)" 
+              borderRadius="md" 
+              textAlign="center"
+              border="1px solid rgba(255, 100, 100, 0.3)"
+            >
+              <Heading color="red.300" mb={2}>
+                DÉFAITE !
+              </Heading>
+              <Text fontSize="xl" mb={3}>
+                Le personnage du jour était {dailyCharacter.name}.
+              </Text>
+              <Image 
+                src={dailyCharacter.image}
+                alt={dailyCharacter.name}
+                boxSize="100px"
+                objectFit="contain"
+                mx="auto"
+              />
+            </Box>
+          )}
+          
           {/* Affichage du personnage du jour et bouton de reset (pour le débogage) */}
           {dailyCharacter && (
             <Flex 
@@ -362,55 +823,44 @@ function Game() {
               p={4} 
               borderRadius="md" 
               border="1px solid rgba(255, 255, 255, 0.1)"
+              mt={4}
+              gap={3}
             >
               <Text color="white" fontSize="sm" opacity={0.7} mb={2}>
-                Personnage du jour (à masquer en production): {dailyCharacter.name}
+                Personnage du jour (Debug): {dailyCharacter.name}
               </Text>
               
-              <Button 
-                leftIcon={<RepeatIcon />} 
-                size="sm" 
-                colorScheme="red" 
-                variant="outline"
-                onClick={onResetModalOpen}
-                alignSelf="flex-start"
-              >
-                Changer le personnage du jour
-              </Button>
+              <Flex gap={2}>
+                <Button 
+                  leftIcon={<RepeatIcon />} 
+                  size="sm" 
+                  colorScheme="red" 
+                  variant="outline"
+                  onClick={onResetModalOpen}
+                  alignSelf="flex-start"
+                >
+                  Changer le personnage du jour
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  colorScheme="blue" 
+                  variant="outline"
+                  onClick={() => {
+                    // Réinitialiser les essais sans changer le personnage
+                    setGuesses([]);
+                    localStorage.removeItem('dragonballdle-guesses');
+                    setGameStatus('playing');
+                  }}
+                  alignSelf="flex-start"
+                >
+                  Relancer la partie
+                </Button>
+              </Flex>
             </Flex>
           )}
-          {/* Ici tu pourras afficher les essais précédents */}
         </Box>
       </Box>
-      
-            {/* Modal de confirmation pour le reset */}
-      <Modal isOpen={isResetModalOpen} onClose={onResetModalClose}>
-        <ModalOverlay backdropFilter="blur(8px)" />
-        <ModalContent bg="gray.800" color="white">
-          <ModalHeader color="orange.300">Réinitialiser le personnage</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>
-              Êtes-vous sûr de vouloir changer le personnage du jour ?
-            </Text>
-            <Text mt={2} fontSize="sm" color="red.300">
-              Attention : Cette action réinitialisera également toutes les tentatives en cours.
-            </Text>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button variant="ghost" mr={3} onClick={onResetModalClose}>
-              Annuler
-            </Button>
-            <Button 
-              colorScheme="red" 
-              onClick={resetDailyCharacter}
-            >
-              Réinitialiser
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </Box>
   );
 }
