@@ -28,7 +28,6 @@ function Game() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const [dailyCharacter, setDailyCharacter] = useState<any>(null);
-  const { isOpen: isResetModalOpen, onOpen: onResetModalOpen, onClose: onResetModalClose } = useDisclosure();
   const [guesses, setGuesses] = useState<Array<any>>([]);
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
   const maxGuesses = 10;
@@ -53,7 +52,7 @@ function Game() {
       setGuesses(parsedGuesses);
       
       // Vérifier l'état du jeu
-      if (parsedGuesses.some(guess => guess.result.name === 'correct')) {
+      if (parsedGuesses.some((guess: { result: { name: string } }) => guess.result.name === 'correct')) {
         setGameStatus('won');
       } else if (parsedGuesses.length >= maxGuesses) {
         setGameStatus('lost');
@@ -246,23 +245,6 @@ function Game() {
     return 'incorrect';
   };
 
-  const resetDailyCharacter = () => {
-    const newChar = dailyRandomChar();
-    localStorage.setItem('dailyCharacter', JSON.stringify(newChar));
-    localStorage.setItem('characterTime', new Date().getTime().toString());
-    localStorage.setItem('characterDayId', getDayId());
-    
-    // Réinitialiser les essais
-    setGuesses([]);
-    localStorage.removeItem('dragonballdle-guesses');
-    
-    // Réinitialiser l'état du jeu
-    setGameStatus('playing');
-    
-    setDailyCharacter(newChar);
-    onResetModalClose();
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value);
   };
@@ -373,7 +355,6 @@ function Game() {
 
   const getDailyChar = () => {
     const storedChar = localStorage.getItem('dailyCharacter');
-    const storedTime = localStorage.getItem('characterTime');
     const storedDayId = localStorage.getItem('characterDayId');
     const currentDayId = getDayId();
   
