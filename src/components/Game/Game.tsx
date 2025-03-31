@@ -28,6 +28,7 @@ function Game() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const [dailyCharacter, setDailyCharacter] = useState<any>(null);
+  const { onOpen: onResetModalOpen } = useDisclosure();
   const [guesses, setGuesses] = useState<Array<any>>([]);
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
   const maxGuesses = 10;
