@@ -16,9 +16,8 @@ import {
   PopoverContent,
   PopoverBody,
   useOutsideClick,
-  useDisclosure
 } from '@chakra-ui/react';
-import { SearchIcon, CloseIcon, RepeatIcon } from '@chakra-ui/icons';
+import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
 
 function Game() {
@@ -28,7 +27,6 @@ function Game() {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const popoverRef = React.useRef<HTMLDivElement>(null);
   const [dailyCharacter, setDailyCharacter] = useState<any>(null);
-  const { onOpen: onResetModalOpen } = useDisclosure();
   const [guesses, setGuesses] = useState<Array<any>>([]);
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
   const maxGuesses = 10;
@@ -812,18 +810,7 @@ function Game() {
                 Personnage du jour (Debug): {dailyCharacter.name}
               </Text>
               
-              <Flex gap={2}>
-                <Button 
-                  leftIcon={<RepeatIcon />} 
-                  size="sm" 
-                  colorScheme="red" 
-                  variant="outline"
-                  onClick={onResetModalOpen}
-                  alignSelf="flex-start"
-                >
-                  Changer le personnage du jour
-                </Button>
-                
+              <Flex gap={2}>  
                 <Button 
                   size="sm" 
                   colorScheme="blue" 
