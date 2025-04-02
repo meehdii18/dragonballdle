@@ -31,7 +31,7 @@ function Game() {
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
   const maxGuesses = 10;
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
-  const listRef = React.useRef<HTMLDivElement>(null);
+  const listRef = React.useRef<HTMLUListElement>(null);
 
   useOutsideClick({
     ref: popoverRef,

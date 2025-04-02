@@ -63,7 +63,7 @@ export const characters = [
     id: 8,
     name: "Cell",
     image: "/images/characters/cell-perfect-formpng.png",
-    species: "Bio-Androïde",
+    species: "Cyborg",
     height: "213 cm",
     age: "Inconnu",
     firstArc: "Saga Cell",
