@@ -32,7 +32,7 @@ function Game() {
   const maxGuesses = 10;
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const listRef = React.useRef<HTMLDivElement>(null);
-  
+
   useOutsideClick({
     ref: popoverRef,
     handler: () => setIsPopoverOpen(false),
@@ -94,9 +94,19 @@ function Game() {
 
   useEffect(() => {
     if (selectedSuggestionIndex >= 0 && listRef.current) {
-      const selectedElement = listRef.current.querySelector(`li:nth-child(${selectedSuggestionIndex + 1})`);
-      if (selectedElement) {
-        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // Trouver directement le bouton au lieu de chercher le li
+      const buttons = listRef.current.querySelectorAll('button');
+      const selectedButton = buttons[selectedSuggestionIndex];
+      
+      if (selectedButton) {
+        // Utiliser un timeout pour s'assurer que tout est rendu
+        setTimeout(() => {
+          selectedButton.scrollIntoView({
+            behavior: 'auto', // Changé de 'smooth' à 'auto' pour un défilement immédiat
+            block: 'nearest',
+            inline: 'nearest'
+          });
+        }, 0);
       }
     }
   }, [selectedSuggestionIndex]);
@@ -573,11 +583,25 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                     border="1px solid rgba(255, 255, 255, 0.1)"
                     borderRadius="8px"
                     boxShadow="0 4px 12px rgba(0, 0, 0, 0.3)"
-                    maxH="200px"
+                    maxH="300px"
                     overflowY="auto"
+                    sx={{
+                      '&::-webkit-scrollbar': {
+                        width: '8px',
+                        borderRadius: '8px',
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        backgroundColor: 'rgba(255, 165, 0, 0.3)',
+                        borderRadius: '8px',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 165, 0, 0.5)',
+                        },
+                      },
+                    }}
                   >
                     <PopoverBody p={2}>
-                    <List spacing={1}>
+                    <List spacing={1} ref={listRef}>
                       {suggestions.map((suggestion, index) => (
                         <ListItem key={suggestion.id}>
                           <Button
