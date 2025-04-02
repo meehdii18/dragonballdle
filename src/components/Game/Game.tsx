@@ -128,21 +128,18 @@ function Game() {
     if (guessedHeight === 'Inconnu' || targetHeight === 'Inconnu') {
       return guessedHeight === targetHeight ? 'correct' : 'incorrect';
     }
-  
+    
     // Extraire les valeurs numériques des hauteurs
-    const guessedValue = parseInt(guessedHeight.replace(/[^0-9]/g, ''), 10);
-    const targetValue = parseInt(targetHeight.replace(/[^0-9]/g, ''), 10);
-  
-    if (isNaN(guessedValue) || isNaN(targetValue)) {
-      return 'incorrect';
-    }
-  
-    if (Math.abs(guessedValue - targetValue) <= 5) {
+    const guessedValue = parseInt(guessedHeight.replace(/[^0-9]/g, ''));
+    const targetValue = parseInt(targetHeight.replace(/[^0-9]/g, ''));
+    
+    if (guessedValue === targetValue) {
       return 'correct';
-    } else if (Math.abs(guessedValue - targetValue) <= 20) {
-      return 'close';
+    } else if (guessedValue < targetValue) {
+      return 'higher'; // La valeur cible est plus élevée
+    } else {
+      return 'lower';  // La valeur cible est moins élevée
     }
-    return guessedValue < targetValue ? 'lower' : 'higher';
   };
 
   const compareAge = (guessedAge: string, targetAge: string) => {
@@ -165,62 +162,56 @@ function Game() {
     return guessedValue < targetValue ? 'lower' : 'higher';
   };
 
-  const arcsByAnime = {
-    "Dragon Ball": [
-      "Saga Pilaf",
-      "Saga 21e Tenkaichi Budokai",
-      "Saga Red Ribbon",
-      "Saga Piccolo Daimaô",
-      "Saga 23e Tenkaichi Budokai"
-    ],
-    "Dragon Ball Z": [
-      "Saga Saiyan",
-      "Saga Namek",
-      "Saga Freezer",
-      "Saga Garlick Jr.",
-      "Saga Androïdes",
-      "Saga Cell",
-      "Saga Majin Boo"
-    ],
-    "Dragon Ball GT": [
-      "Saga Baby",
-      "Saga Super C-17",
-      "Saga Dragons Maléfiques"
-    ],
-    "Dragon Ball Super": [
-      "Saga Battle of Gods",
-      "Saga Resurrection F",
-      "Saga Tournoi de Champa",
-      "Saga Black Goku",
-      "Saga Tournoi du Pouvoir"
-    ]
-  };
+const chronologicalArcs = [
+  // Dragon Ball
+  "Saga Pilaf",
+  "Saga 21e Tenkaichi Budokai",
+  "Saga Red Ribbon",
+  "Saga Piccolo Daimaô",
+  "Saga 23e Tenkaichi Budokai",
+  
+  // Dragon Ball Z
+  "Saga Saiyan",
+  "Saga Namek",
+  "Saga Freezer",
+  "Saga Garlick Jr.",
+  "Saga Androïdes",
+  "Saga Cell",
+  "Saga Majin Boo",
+  
+  // Dragon Ball GT
+  "Saga Baby",
+  "Saga Super C-17",
+  "Saga Dragons Maléfiques",
+  
+  // Dragon Ball Super
+  "Saga Battle of Gods",
+  "Saga Resurrection F",
+  "Saga Tournoi de Champa",
+  "Saga Black Goku",
+  "Saga Tournoi du Pouvoir"
+];
 
-  const getAnimeFromArc = (arc: string): string | null => {
-    for (const [anime, arcs] of Object.entries(arcsByAnime)) {
-      if (arcs.includes(arc)) {
-        return anime;
-      }
-    }
-    return null;
-  };
+// Fonction qui compare la position chronologique de deux arcs
+const compareArcOrder = (guessedArc: string, targetArc: string): string => {
+  const guessedIndex = chronologicalArcs.indexOf(guessedArc);
+  const targetIndex = chronologicalArcs.indexOf(targetArc);
+  
+  if (guessedIndex === -1 || targetIndex === -1) return '';
+  
+  if (guessedIndex < targetIndex) {
+    return '↑'; // L'arc cible est plus récent
+  } else {
+    return '↓'; // L'arc cible est plus ancien
+  }
+};
 
   const compareFirstArc = (guessedArc: string, targetArc: string) => {
     // Même saga = vert
     if (guessedArc === targetArc) {
       return 'correct';
     }
-    
-    // Déterminer les animes correspondants
-    const guessedAnime = getAnimeFromArc(guessedArc);
-    const targetAnime = getAnimeFromArc(targetArc);
-    
-    // Même anime = orange/jaune
-    if (guessedAnime && targetAnime && guessedAnime === targetAnime) {
-      return 'close';
-    }
-    
-    // Différents animes = rouge
+
     return 'incorrect';
   };
 
@@ -615,7 +606,7 @@ function Game() {
                           <Image
                             src={guess.character.image}
                             alt={guess.character.name}
-                            boxSize="40px"
+                            boxSize="60px"
                             borderRadius="full"
                             objectFit="cover"
                             mx="auto"
@@ -652,19 +643,15 @@ function Game() {
                     <Box 
                       as="td" 
                       p={2}
-                      bgColor={
-                        guess.result.height === 'correct' ? 'green.500' :
-                        guess.result.height === 'close' ? 'yellow.500' : 
-                        'red.500'  
-                      }
+                      bgColor={guess.result.height === 'correct' ? 'green.500' : 'red.500'}
                       opacity={0.7}
                       borderRadius="md"
                       textAlign="center"
                     >
                       {guess.character.height}
-                      {(guess.result.height === 'lower' || guess.result.height === 'higher') && (
+                      {(guess.result.height === 'higher' || guess.result.height === 'lower') && (
                         <Text as="span" ml={1}>
-                          {guess.result.height === 'lower' ? '↓' : '↑'}
+                          {guess.result.height === 'higher' ? '↑' : '↓'}
                         </Text>
                       )}
                     </Box>
@@ -684,42 +671,28 @@ function Game() {
                       {guess.character.age}
                       {(guess.result.age === 'lower' || guess.result.age === 'higher') && (
                         <Text as="span" ml={1}>
-                          {guess.result.age === 'lower' ? '↓' : '↑'}
+                          {guess.result.age === 'higher' ? '↓' : '↑'}
                         </Text>
                       )}
                     </Box>
 
-                        <Box 
-                          as="td" 
-                          p={2}
-                          bgColor={
-                            guess.result.firstArc === 'correct' ? 'green.500' :
-                            guess.result.firstArc === 'close' ? 'yellow.500' : 
-                            'red.500'
-                          }
-                          opacity={0.7}
-                          borderRadius="md"
-                          textAlign="center"
-                        >
-                            {guess.character.firstArc}
-                            {guess.result.firstArc !== 'correct' && guess.result.firstArc !== 'close' && (
-                            <Text as="span" ml={1} fontWeight="bold">
-                              {getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↓' : 
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↓' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↑' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↑' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Z" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Z" ? '↑' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball GT" ? '↓' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball GT" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball Super" ? '↓' :
-                              getAnimeFromArc(guess.character.firstArc) === "Dragon Ball Super" && getAnimeFromArc(dailyCharacter.firstArc) === "Dragon Ball" ? '↑' : ''
-                              }
-                            </Text>
-                          )}
-                        </Box>
+                    <Box 
+                      as="td" 
+                      p={2}
+                      bgColor={
+                        guess.result.firstArc === 'correct' ? 'green.500' : 'red.500'
+                      }
+                      opacity={0.7}
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                      {guess.character.firstArc}
+                      {guess.result.firstArc !== 'correct' && (
+                        <Text as="span" ml={1} fontWeight="bold">
+                          {compareArcOrder(guess.character.firstArc, dailyCharacter.firstArc)}
+                        </Text>
+                      )}
+                    </Box>
 
                         <Box 
                           as="td" 

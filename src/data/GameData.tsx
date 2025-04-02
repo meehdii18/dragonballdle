@@ -25,7 +25,7 @@ export const characters = [
     image: "/images/characters/piccolo-endpng.png",
     species: "Namek",
     height: "226 cm",
-    age: "Inconnu",
+    age: "55",
     firstArc: "Saga Piccolo Daimaô",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -74,8 +74,8 @@ export const characters = [
     name: "Majin Boo",
     image: "/images/characters/majin-buupng.png",
     species: "Majin",
-    height: "Inconnu",
-    age: "Inconnu",
+    height: "180 cm",
+    age: "5000000",
     firstArc: "Saga Majin Boo",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -88,6 +88,46 @@ export const characters = [
     age: "44",
     firstArc: "Saga Pilaf",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+  },
+  {
+    id: 11,
+    name: "C-8 'Franky'",
+    image: "/images/characters/android-8png.png",
+    species: "Cyborg",
+    height: "230 cm",
+    age: "Inconnu",
+    firstArc: "Saga Red Ribbon",
+    animeAppearances: ["Dragon Ball", "Dragon Ball Z"]
+  },
+  {
+    id: 12,
+    name: "C-16",
+    image: "/images/characters/android-16png.png",
+    species: "Cyborg",
+    height: "215 cm",
+    age: "Inconnu",
+    firstArc: "Saga Androïdes",
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT"]
+  },
+  {
+    id: 13,
+    name: "C-17",
+    image: "/images/characters/android-17png.png",
+    species: "Cyborg",
+    height: "170 cm",
+    age: "Inconnu",
+    firstArc: "Saga Androïdes",
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT","Dragon Ball Super"]
+  },
+  {
+    id: 13,
+    name: "C-18",
+    image: "/images/characters/android-18png.png",
+    species: "Cyborg",
+    height: "169 cm",
+    age: "Inconnu",
+    firstArc: "Saga Androïdes",
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
 ];
 
