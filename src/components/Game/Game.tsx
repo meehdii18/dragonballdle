@@ -16,8 +16,9 @@ import {
   PopoverContent,
   PopoverBody,
   useOutsideClick,
+  Icon,
 } from '@chakra-ui/react';
-import { SearchIcon, CloseIcon } from '@chakra-ui/icons';
+import { SearchIcon, CloseIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
 
 function Game() {
@@ -30,7 +31,8 @@ function Game() {
   const [guesses, setGuesses] = useState<Array<any>>([]);
   const [gameStatus, setGameStatus] = useState<'playing' | 'won' | 'lost'>('playing');
   const maxGuesses = 10;
-
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const listRef = React.useRef<HTMLDivElement>(null);
   
   useOutsideClick({
     ref: popoverRef,
@@ -38,33 +40,44 @@ function Game() {
   });
 
   useEffect(() => {
+    const checkPreviousGuesses = () => {
+      // Charger les essais précédents s'ils existent et sont de la même journée
+      const savedGuesses = localStorage.getItem('dragonballdle-guesses');
+      const savedDate = localStorage.getItem('dragonballdle-date');
+      const currentDayId = getDayId();
+      
+      if (savedGuesses && savedDate === currentDayId) {
+        const parsedGuesses = JSON.parse(savedGuesses);
+        setGuesses(parsedGuesses);
+        
+        // Vérifier l'état du jeu
+        if (parsedGuesses.some((guess: { result: { name: string } }) => guess.result.name === 'correct')) {
+          setGameStatus('won');
+        } else if (parsedGuesses.length >= maxGuesses) {
+          setGameStatus('lost');
+        }
+      } else if (savedDate !== currentDayId) {
+        // Nouveau jour, effacer les anciens essais
+        localStorage.removeItem('dragonballdle-guesses');
+      }
+    };
+  
     const char = getDailyChar();
     setDailyCharacter(char);
+    checkPreviousGuesses();
+  }, [maxGuesses]);
   
-    // Charger les essais précédents s'ils existent et sont de la même journée
-    const savedGuesses = localStorage.getItem('dragonballdle-guesses');
-    const savedDate = localStorage.getItem('dragonballdle-date');
-    const currentDayId = getDayId();
-    
-    if (savedGuesses && savedDate === currentDayId) {
-      const parsedGuesses = JSON.parse(savedGuesses);
-      setGuesses(parsedGuesses);
-      
-      // Vérifier l'état du jeu
-      if (parsedGuesses.some((guess: { result: { name: string } }) => guess.result.name === 'correct')) {
-        setGameStatus('won');
-      } else if (parsedGuesses.length >= maxGuesses) {
-        setGameStatus('lost');
-      }
-    } else if (savedDate !== currentDayId) {
-      // Nouveau jour, effacer les anciens essais
-      localStorage.removeItem('dragonballdle-guesses');
-    }
-  
+  // Effet séparé pour gérer les suggestions
+  useEffect(() => {
     if (searchValue.trim().length >= 1) {
+      // Récupérer tous les noms de personnages déjà essayés
+      const alreadyGuessedCharacterNames = guesses.map(g => g.character.name.toLowerCase());
+      
       const filteredSuggestions = characters
         .filter(character => 
-          character.name.toLowerCase().includes(searchValue.toLowerCase()))
+          character.name.toLowerCase().includes(searchValue.toLowerCase()) &&
+          !alreadyGuessedCharacterNames.includes(character.name.toLowerCase())
+        )
         .map(character => ({ 
           id: character.id, 
           name: character.name,
@@ -73,11 +86,22 @@ function Game() {
       
       setSuggestions(filteredSuggestions);
       setIsPopoverOpen(filteredSuggestions.length > 0);
+      setSelectedSuggestionIndex(-1);
     } else {
       setSuggestions([]);
       setIsPopoverOpen(false);
+      setSelectedSuggestionIndex(-1);
     }
-  }, [searchValue]);
+  }, [searchValue, guesses]);
+
+  useEffect(() => {
+    if (selectedSuggestionIndex >= 0 && listRef.current) {
+      const selectedElement = listRef.current.querySelector(`li:nth-child(${selectedSuggestionIndex + 1})`);
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, [selectedSuggestionIndex]);
 
   const getDayId = () => {
     const today = `${new Date().getUTCFullYear()}${String(new Date().getUTCMonth() + 1).padStart(2, '0')}${String(new Date().getUTCDate()).padStart(2, '0')}`;
@@ -139,6 +163,49 @@ function Game() {
       return 'higher'; // La valeur cible est plus élevée
     } else {
       return 'lower';  // La valeur cible est moins élevée
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Si la liste de suggestions est ouverte, gérer la navigation dans les suggestions
+    if (isPopoverOpen && suggestions.length > 0) {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          setSelectedSuggestionIndex(prev => 
+            prev < suggestions.length - 1 ? prev + 1 : prev
+          );
+          break;
+          
+        case 'ArrowUp':
+          e.preventDefault();
+          setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : 0);
+          break;
+          
+          case 'Enter':
+            e.preventDefault(); // Empêcher le comportement par défaut
+            if (selectedSuggestionIndex >= 0 && selectedSuggestionIndex < suggestions.length) {
+              // Sélectionner la suggestion et soumettre immédiatement
+              selectSuggestion(suggestions[selectedSuggestionIndex].name, true);
+            } else {
+              // Soumettre directement le formulaire
+              handleSubmit(e);
+            }
+            break;
+          
+        case 'Escape':
+          e.preventDefault();
+          setIsPopoverOpen(false);
+          setSelectedSuggestionIndex(-1);
+          break;
+          
+        default:
+          break;
+      }
+    } 
+    // Si la liste de suggestions n'est pas ouverte mais qu'il y a du texte dans le champ
+    else if (searchValue.trim() && e.key === 'Enter') {
+      handleSubmit(e);
     }
   };
 
@@ -241,8 +308,11 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!searchValue.trim() || !dailyCharacter) return;
+        
+    if (!searchValue.trim() || !dailyCharacter) {
+      console.log("Soumission annulée: champ vide ou personnage quotidien non défini");
+      return;
+    }
     
     // Trouver le personnage correspondant dans la liste
     const guessedCharacter = characters.find(
@@ -269,7 +339,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
     };
     
     // Ajouter l'essai à la liste des essais
-    const updatedGuesses = [...guesses, newGuess];
+    const updatedGuesses = [newGuess,...guesses];
     setGuesses(updatedGuesses);
     
     // Sauvegarder les essais dans localStorage
@@ -327,10 +397,17 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
     setIsPopoverOpen(false);
   };
 
-  const selectSuggestion = (name: string) => {
+  const selectSuggestion = (name: string, shouldSubmit = false) => {
     setSearchValue(name);
     setIsPopoverOpen(false);
-    if (inputRef.current) {
+    
+    if (shouldSubmit) {
+      setTimeout(() => {
+        const event = new Event('submit', { cancelable: true, bubbles: true });
+        const form = document.querySelector('form');
+        if (form) form.dispatchEvent(event);
+      }, 10);
+    } else if (inputRef.current) {
       inputRef.current.focus();
     }
   };
@@ -427,79 +504,83 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
           Trouve le personnage de Dragon Ball
         </Heading>
         
-        <Box as="form" onSubmit={handleSubmit} width="100%" maxWidth="600px" mb="2rem">
-          <Flex gap={3}>
-            <Box position="relative" flex="1">
-              <InputGroup>
-                <InputLeftElement pointerEvents="none">
-                  <SearchIcon color="whiteAlpha.700" />
-                </InputLeftElement>
+        {gameStatus === 'playing' && (
+          <Box as="form" onSubmit={handleSubmit} width="100%" maxWidth="600px" mb="2rem">
+            <Flex gap={3}>
+              <Box position="relative" flex="1">
+                <InputGroup>
+                  <InputLeftElement pointerEvents="none">
+                    <SearchIcon color="whiteAlpha.700" />
+                  </InputLeftElement>
+                  
+                  <Input
+                    ref={inputRef}
+                    placeholder="Qui est ce personnage ?"
+                    value={searchValue}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    onFocus={() => {
+                      if (suggestions.length > 0) {
+                        setIsPopoverOpen(true);
+                        setSelectedSuggestionIndex(-1);
+                      }
+                    }}
+                    bg="whiteAlpha.100"
+                    border="2px solid"
+                    borderColor="whiteAlpha.200"
+                    _focus={{
+                      borderColor: "dragonball.300",
+                      boxShadow: "0 0 0 1px #ffcc00"
+                    }}
+                    _placeholder={{ color: "whiteAlpha.500" }}
+                    pr={searchValue ? "40px" : "20px"}
+                  />
+                  
+                  {searchValue && (
+                    <Button
+                      position="absolute"
+                      right="8px"
+                      top="50%"
+                      transform="translateY(-50%)"
+                      zIndex={2}
+                      size="sm"
+                      p={0}
+                      minW="auto"
+                      h="auto"
+                      variant="ghost"
+                      onClick={clearSearch}
+                      aria-label="Effacer la recherche"
+                    >
+                      <CloseIcon color="whiteAlpha.700" boxSize="10px" />
+                    </Button>
+                  )}
+                </InputGroup>
                 
-                <Input
-                  ref={inputRef}
-                  placeholder="Qui est ce personnage ?"
-                  value={searchValue}
-                  onChange={handleInputChange}
-                  onFocus={() => {
-                    if (suggestions.length > 0) {
-                      setIsPopoverOpen(true);
-                    }
-                  }}
-                  bg="whiteAlpha.100"
-                  border="2px solid"
-                  borderColor="whiteAlpha.200"
-                  _focus={{
-                    borderColor: "dragonball.300",
-                    boxShadow: "0 0 0 1px #ffcc00"
-                  }}
-                  _placeholder={{ color: "whiteAlpha.500" }}
-                  pr={searchValue ? "40px" : "20px"}
-                />
-                
-                {searchValue && (
-                  <Button
-                    position="absolute"
-                    right="8px"
-                    top="50%"
-                    transform="translateY(-50%)"
-                    zIndex={2}
-                    size="sm"
-                    p={0}
-                    minW="auto"
-                    h="auto"
-                    variant="ghost"
-                    onClick={clearSearch}
-                    aria-label="Effacer la recherche"
-                  >
-                    <CloseIcon color="whiteAlpha.700" boxSize="10px" />
-                  </Button>
-                )}
-              </InputGroup>
-              
-              <Popover
-                isOpen={isPopoverOpen}
-                autoFocus={false}
-                closeOnBlur={false}
-                placement="bottom-start"
-                gutter={5}
-                matchWidth
-              >
-                <PopoverTrigger>
-                  <Box />
-                </PopoverTrigger>
-                <PopoverContent
-                  ref={popoverRef}
-                  bg="rgba(30, 30, 30, 0.9)"
-                  backdropFilter="blur(10px)"
-                  border="1px solid rgba(255, 255, 255, 0.1)"
-                  borderRadius="8px"
-                  boxShadow="0 4px 12px rgba(0, 0, 0, 0.3)"
-                  maxH="200px"
-                  overflowY="auto"
+                <Popover
+                  isOpen={isPopoverOpen}
+                  autoFocus={false}
+                  closeOnBlur={false}
+                  placement="bottom-start"
+                  gutter={5}
+                  matchWidth
+                  closeOnEsc={false} 
                 >
-                  <PopoverBody p={2}>
+                  <PopoverTrigger>
+                    <Box />
+                  </PopoverTrigger>
+                  <PopoverContent
+                    ref={popoverRef}
+                    bg="rgba(30, 30, 30, 0.9)"
+                    backdropFilter="blur(10px)"
+                    border="1px solid rgba(255, 255, 255, 0.1)"
+                    borderRadius="8px"
+                    boxShadow="0 4px 12px rgba(0, 0, 0, 0.3)"
+                    maxH="200px"
+                    overflowY="auto"
+                  >
+                    <PopoverBody p={2}>
                     <List spacing={1}>
-                      {suggestions.map((suggestion) => (
+                      {suggestions.map((suggestion, index) => (
                         <ListItem key={suggestion.id}>
                           <Button
                             variant="ghost"
@@ -509,6 +590,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                             px={3}
                             borderRadius="6px"
                             onClick={() => selectSuggestion(suggestion.name)}
+                            bg={selectedSuggestionIndex === index ? 'rgba(255, 165, 0, 0.3)' : 'transparent'}
                             _hover={{
                               bg: 'rgba(255, 165, 0, 0.2)'
                             }}
@@ -550,22 +632,79 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                         </ListItem>
                       ))}
                     </List>
-                  </PopoverBody>
-                </PopoverContent>
-              </Popover>
-            </Box>
-            
-            <Button
-              type="submit"
-              variant="dragonball"
-              px={6}
-              height="auto"
-              fontSize="2rem"
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              </Box>
+              
+              <Button
+                type="submit"
+                variant="dragonball"
+                px={6}
+                height="auto"
+                fontSize="2rem"
+              >
+                Deviner
+              </Button>
+            </Flex>
+          </Box>
+        )}
+
+                  {/* Affichage du résultat du jeu */}
+                  {gameStatus === 'won' && (
+            <Box 
+              mt={4} 
+              p={6} 
+              bg="rgba(0, 100, 0, 0.6)" 
+              borderRadius="md" 
+              textAlign="center"
+              border="1px solid rgba(100, 255, 100, 0.3)"
             >
-              Deviner
-            </Button>
-          </Flex>
-        </Box>
+              <Heading color="green.300" mb={2}>
+                VICTOIRE !
+              </Heading>
+              <Text fontSize="xl">
+                Tu as trouvé {dailyCharacter.name} en {guesses.length} essai{guesses.length > 1 ? 's' : ''} !
+              </Text>
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => {
+                  setGuesses([]);
+                  localStorage.removeItem('dragonballdle-guesses');
+                  setGameStatus('playing');
+                }}
+                alignSelf="flex-start"
+              >
+                <RepeatClockIcon></RepeatClockIcon>
+              </Button>
+            </Box>
+          )}
+          
+          {gameStatus === 'lost' && (
+            <Box 
+              mt={4} 
+              p={6} 
+              bg="rgba(100, 0, 0, 0.6)" 
+              borderRadius="md" 
+              textAlign="center"
+              border="1px solid rgba(255, 100, 100, 0.3)"
+            >
+              <Heading color="red.300" mb={2}>
+                DÉFAITE !
+              </Heading>
+              <Text fontSize="xl" mb={3}>
+                Le personnage du jour était {dailyCharacter.name}.
+              </Text>
+              <Image 
+                src={dailyCharacter.image}
+                alt={dailyCharacter.name}
+                boxSize="100px"
+                objectFit="contain"
+                mx="auto"
+              />
+            </Box>
+          )}
 
 
         <Box className="previous-guesses" width="100%" maxWidth="2000px" mt="2rem">
@@ -724,50 +863,6 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
             </Box>
           )}
           
-          {/* Affichage du résultat du jeu */}
-          {gameStatus === 'won' && (
-            <Box 
-              mt={4} 
-              p={6} 
-              bg="rgba(0, 100, 0, 0.6)" 
-              borderRadius="md" 
-              textAlign="center"
-              border="1px solid rgba(100, 255, 100, 0.3)"
-            >
-              <Heading color="green.300" mb={2}>
-                VICTOIRE !
-              </Heading>
-              <Text fontSize="xl">
-                Tu as trouvé {dailyCharacter.name} en {guesses.length} essai{guesses.length > 1 ? 's' : ''} !
-              </Text>
-            </Box>
-          )}
-          
-          {gameStatus === 'lost' && (
-            <Box 
-              mt={4} 
-              p={6} 
-              bg="rgba(100, 0, 0, 0.6)" 
-              borderRadius="md" 
-              textAlign="center"
-              border="1px solid rgba(255, 100, 100, 0.3)"
-            >
-              <Heading color="red.300" mb={2}>
-                DÉFAITE !
-              </Heading>
-              <Text fontSize="xl" mb={3}>
-                Le personnage du jour était {dailyCharacter.name}.
-              </Text>
-              <Image 
-                src={dailyCharacter.image}
-                alt={dailyCharacter.name}
-                boxSize="100px"
-                objectFit="contain"
-                mx="auto"
-              />
-            </Box>
-          )}
-          
           {/* Affichage du personnage du jour et bouton de reset (pour le débogage) */}
           {dailyCharacter && (
             <Flex 
@@ -782,23 +877,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
               <Text color="white" fontSize="sm" opacity={0.7} mb={2}>
                 Personnage du jour (Debug): {dailyCharacter.name}
               </Text>
-              
-              <Flex gap={2}>  
-                <Button 
-                  size="sm" 
-                  colorScheme="blue" 
-                  variant="outline"
-                  onClick={() => {
-                    // Réinitialiser les essais sans changer le personnage
-                    setGuesses([]);
-                    localStorage.removeItem('dragonballdle-guesses');
-                    setGameStatus('playing');
-                  }}
-                  alignSelf="flex-start"
-                >
-                  Relancer la partie
-                </Button>
-              </Flex>
+            
             </Flex>
           )}
         </Box>
