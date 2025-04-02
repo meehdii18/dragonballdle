@@ -15,8 +15,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  useOutsideClick,
-  Icon,
+  useOutsideClick
 } from '@chakra-ui/react';
 import { SearchIcon, CloseIcon, RepeatClockIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
@@ -57,7 +56,6 @@ function Game() {
           setGameStatus('lost');
         }
       } else if (savedDate !== currentDayId) {
-        // Nouveau jour, effacer les anciens essais
         localStorage.removeItem('dragonballdle-guesses');
       }
     };
@@ -67,7 +65,7 @@ function Game() {
     checkPreviousGuesses();
   }, [maxGuesses]);
   
-  // Effet séparé pour gérer les suggestions
+  // useEffect différent qui gère l'autocomplétion
   useEffect(() => {
     if (searchValue.trim().length >= 1) {
       // Récupérer tous les noms de personnages déjà essayés
