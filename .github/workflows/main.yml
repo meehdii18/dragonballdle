@@ -44,7 +44,7 @@ jobs:
           port: 22
           dry-run: false  # Set to true for testing
           uploads: |
-            dist/ => /
+            dist/ => /dbdle/
           ignore: |
             **/*.map  # Ignore source maps
             node_modules/  # Ignore dependencies
