@@ -685,7 +685,11 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
               <Heading color="green.300" mb={2}>
                 VICTOIRE !
               </Heading>
-              <Text fontSize="xl">
+              <Text 
+              fontSize="xl"
+              fontWeight={"bold"}
+              pb={5}
+              >
                 Tu as trouvé {dailyCharacter.name} en {guesses.length} essai{guesses.length > 1 ? 's' : ''} !
               </Text>
               <Button 
@@ -697,8 +701,11 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                   setGameStatus('playing');
                 }}
                 alignSelf="flex-start"
+                gap={1}
               >
-                <RepeatClockIcon></RepeatClockIcon>
+                <RepeatClockIcon>
+                </RepeatClockIcon>
+                Rejouer
               </Button>
             </Box>
           )}
