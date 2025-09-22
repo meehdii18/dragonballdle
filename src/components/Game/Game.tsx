@@ -702,6 +702,9 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                 }}
                 alignSelf="flex-start"
                 gap={1}
+                color={"orange.300"}
+                
+                _hover={{ bg: 'orange.600', color: 'white' }}
               >
                 <RepeatClockIcon>
                 </RepeatClockIcon>
