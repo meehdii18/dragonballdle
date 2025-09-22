@@ -29,7 +29,6 @@ const spin = keyframes`
 
 function Header() {
   const { isOpen: isHelpOpen, onOpen: onHelpOpen, onClose: onHelpClose } = useDisclosure();
-  const { isOpen: isStatsOpen, onOpen: onStatsOpen, onClose: onStatsClose } = useDisclosure();
 
   return (
     <Box
@@ -88,18 +87,6 @@ function Header() {
           Comment jouer
         </Button>
 
-        <Button 
-          onClick={onStatsOpen}
-          variant="ghost"
-          _hover={{ bg: 'whiteAlpha.300', color: 'dragonball.300' }}
-          aria-label="Statistiques"
-          color="whiteAlpha.1000"
-          fontFamily={"Saiyan-Sans"}
-          fontSize={30}
-        >
-          Statistiques
-        </Button>
-
         {/* Modal pour les règles du jeu */}
         <Modal isOpen={isHelpOpen} onClose={onHelpClose} isCentered>
           <ModalOverlay backdropFilter="blur(8px)" />
@@ -116,19 +103,6 @@ function Header() {
           </ModalContent>
         </Modal>
 
-        {/* Modal pour les statistiques */}
-        <Modal isOpen={isStatsOpen} onClose={onStatsClose} isCentered>
-          <ModalOverlay backdropFilter="blur(8px)" />
-          <ModalContent bg="gray.700">
-            <ModalHeader color="orange.700">Statistiques</ModalHeader>
-            <ModalCloseButton/>
-            <ModalBody pb={6}>
-              <Text>Parties jouées: 0</Text>
-              <Text>Parties gagnées: 0</Text>
-              <Text>% de victoires: 0%</Text>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
       </Flex>
     </Box>
   );
