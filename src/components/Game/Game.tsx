@@ -131,7 +131,6 @@ function Game() {
       name: guessed.name.toLowerCase() === target.name.toLowerCase() ? 'correct' : 'incorrect',
       species: compareSpecies(guessed.species, target.species),
       height: compareHeight(guessed.height, target.height),
-      age: compareAge(guessed.age, target.age),
       firstArc: compareFirstArc(guessed.firstArc, target.firstArc),
       animeAppearances: compareAnimeAppearances(guessed.animeAppearances, target.animeAppearances)
     };
@@ -217,25 +216,7 @@ function Game() {
     }
   };
 
-  const compareAge = (guessedAge: string, targetAge: string) => {
-    if (guessedAge === 'Inconnu' || targetAge === 'Inconnu') {
-      return guessedAge === targetAge ? 'correct' : 'incorrect';
-    }
-  
-    const guessedValue = parseInt(guessedAge, 10);
-    const targetValue = parseInt(targetAge, 10);
-  
-    if (isNaN(guessedValue) || isNaN(targetValue)) {
-      return 'incorrect';
-    }
-  
-    if (Math.abs(guessedValue - targetValue) <= 3) {
-      return 'correct';
-    } else if (Math.abs(guessedValue - targetValue) <= 10) {
-      return 'close';
-    }
-    return guessedValue < targetValue ? 'lower' : 'higher';
-  };
+  // Ages removed from the game — comparison logic intentionally omitted
 
 const chronologicalArcs = [
   // Dragon Ball
@@ -762,7 +743,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                       <Box as="th" p={2} fontWeight="bold">Nom</Box>
                       <Box as="th" p={2} fontWeight="bold">Espèce</Box>
                       <Box as="th" p={2} fontWeight="bold">Taille</Box>
-                      <Box as="th" p={2} fontWeight="bold">Âge</Box>
+                      {/* Âge retiré */}
                       <Box as="th" p={2} fontWeight="bold">Première apparition</Box>
                       <Box as="th" p={2} fontWeight="bold">Séries</Box>
                     </Box>
@@ -829,25 +810,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                       )}
                     </Box>
 
-                    <Box 
-                      as="td" 
-                      p={2}
-                      bgColor={
-                        guess.result.age === 'correct' ? 'green.500' :
-                        guess.result.age === 'close' ? 'yellow.500' : 
-                        'red.500'  // Toujours rouge, même pour 'lower' ou 'higher'
-                      }
-                      opacity={0.7}
-                      borderRadius="md"
-                      textAlign="center"
-                    >
-                      {guess.character.age}
-                      {(guess.result.age === 'lower' || guess.result.age === 'higher') && (
-                        <Text as="span" ml={1}>
-                          {guess.result.age === 'higher' ? '↓' : '↑'}
-                        </Text>
-                      )}
-                    </Box>
+                    {/* Colonne Âge retirée */}
 
                     <Box 
                       as="td" 

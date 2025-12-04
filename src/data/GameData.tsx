@@ -5,7 +5,6 @@ export const characters = [
     image: "/images/characters/goku-endpng.png",
     species: "Saiyan",
     height: "175 cm",
-    age: "42",
     firstArc: "Saga Pilaf",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -15,7 +14,6 @@ export const characters = [
     image: "/images/characters/vegetapng.png",
     species: "Saiyan",
     height: "164 cm",
-    age: "48",
     firstArc: "Saga Saiyan",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -25,7 +23,6 @@ export const characters = [
     image: "/images/characters/piccolo-endpng.png",
     species: "Namek",
     height: "226 cm",
-    age: "55",
     firstArc: "Saga Piccolo Daimaô",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -35,7 +32,6 @@ export const characters = [
     image: "/images/characters/frieza-1st-formpng.png",
     species: "Alien",
     height: "158 cm",
-    age: "Inconnu",
     firstArc: "Saga Namek",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -45,7 +41,6 @@ export const characters = [
     image: "/images/characters/teen-gohanpng.png",
     species: "Demi-Saiyan",
     height: "176 cm",
-    age: "23",
     firstArc: "Saga Saiyan",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -55,7 +50,6 @@ export const characters = [
     image: "/images/characters/trunkspng.png",
     species: "Demi-Saiyan",
     height: "170 cm",
-    age: "18",
     firstArc: "Saga Androïdes",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -65,7 +59,6 @@ export const characters = [
     image: "/images/characters/cell-perfect-formpng.png",
     species: "Cyborg",
     height: "213 cm",
-    age: "Inconnu",
     firstArc: "Saga Cell",
     animeAppearances: ["Dragon Ball Z"]
   },
@@ -75,7 +68,6 @@ export const characters = [
     image: "/images/characters/majin-buupng.png",
     species: "Majin",
     height: "180 cm",
-    age: "5000000",
     firstArc: "Saga Majin Boo",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -85,7 +77,6 @@ export const characters = [
     image: "/images/characters/krillinpng.png",
     species: "Humain",
     height: "153 cm",
-    age: "44",
     firstArc: "Saga Pilaf",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
@@ -95,7 +86,6 @@ export const characters = [
     image: "/images/characters/android-8png.png",
     species: "Cyborg",
     height: "230 cm",
-    age: "Inconnu",
     firstArc: "Saga Red Ribbon",
     animeAppearances: ["Dragon Ball", "Dragon Ball Z"]
   },
@@ -105,7 +95,6 @@ export const characters = [
     image: "/images/characters/android-16png.png",
     species: "Cyborg",
     height: "215 cm",
-    age: "Inconnu",
     firstArc: "Saga Androïdes",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT"]
   },
@@ -115,7 +104,6 @@ export const characters = [
     image: "/images/characters/android-17png.png",
     species: "Cyborg",
     height: "170 cm",
-    age: "Inconnu",
     firstArc: "Saga Androïdes",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT","Dragon Ball Super"]
   },
@@ -125,19 +113,35 @@ export const characters = [
     image: "/images/characters/android-18png.png",
     species: "Cyborg",
     height: "169 cm",
-    age: "Inconnu",
     firstArc: "Saga Androïdes",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
-    {
+  {
     id: 14,
     name: "Broly",
     image: "/images/characters/brolypng.png",
     species: "Saiyan",
     height: "208 cm",
-    age: "Inconnu",
     firstArc: "Film",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball Super"]
+  },
+  {
+    id: 15,
+    name: "Cell",
+    image: "/images/characters/cell-perfect-formpng.png",
+    species: "Cyborg",
+    height: "213 cm",
+    firstArc: "Saga Cell",
+    animeAppearances: ["Dragon Ball Z"]
+  },
+  {
+    id: 16,
+    name: "Tao Pai Pai",
+    image: "/images/characters/general-taopng.png",
+    species: "Humain",
+    height: "178 cm",
+    firstArc: "Saga Red Ribbon",
+    animeAppearances: ["Dragon Ball","Dragon Ball Z"]
   },
 ];
 
