@@ -722,8 +722,8 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
               textAlign="center"
               border="1px solid rgba(255, 100, 100, 0.3)"
             >
-              <Heading color="red.300" mb={2}>
-                DÉFAITE !
+              <Heading fontSize="5xl" color="red.300" mb={2}>
+                DEFAITE !
               </Heading>
               <Text fontSize="xl" mb={3}>
                 Le personnage du jour était {dailyCharacter.name}.
