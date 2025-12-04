@@ -6,7 +6,8 @@ export const characters = [
     species: "Saiyan",
     height: "175 cm",
     firstArc: "Saga Pilaf",
-    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 2,
@@ -15,7 +16,8 @@ export const characters = [
     species: "Saiyan",
     height: "164 cm",
     firstArc: "Saga Saiyan",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 4,
@@ -24,7 +26,8 @@ export const characters = [
     species: "Namek",
     height: "226 cm",
     firstArc: "Saga Piccolo Daimaô",
-    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 5,
@@ -33,7 +36,8 @@ export const characters = [
     species: "Alien",
     height: "158 cm",
     firstArc: "Saga Namek",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Méchant"
   },
   {
     id: 6,
@@ -42,7 +46,8 @@ export const characters = [
     species: "Demi-Saiyan",
     height: "176 cm",
     firstArc: "Saga Saiyan",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 7,
@@ -51,7 +56,8 @@ export const characters = [
     species: "Demi-Saiyan",
     height: "170 cm",
     firstArc: "Saga Androïdes",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 8,
@@ -60,7 +66,8 @@ export const characters = [
     species: "Cyborg",
     height: "213 cm",
     firstArc: "Saga Cell",
-    animeAppearances: ["Dragon Ball Z"]
+    animeAppearances: ["Dragon Ball Z"],
+    role: "Méchant"
   },
   {
     id: 9,
@@ -69,7 +76,8 @@ export const characters = [
     species: "Majin",
     height: "180 cm",
     firstArc: "Saga Majin Boo",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Méchant"
   },
   {
     id: 10,
@@ -78,7 +86,8 @@ export const characters = [
     species: "Humain",
     height: "153 cm",
     firstArc: "Saga Pilaf",
-    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball", "Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Héros"
   },
   {
     id: 11,
@@ -87,7 +96,8 @@ export const characters = [
     species: "Cyborg",
     height: "230 cm",
     firstArc: "Saga Red Ribbon",
-    animeAppearances: ["Dragon Ball", "Dragon Ball Z"]
+    animeAppearances: ["Dragon Ball", "Dragon Ball Z"],
+    role: "Héros"
   },
   {
     id: 12,
@@ -96,7 +106,8 @@ export const characters = [
     species: "Cyborg",
     height: "215 cm",
     firstArc: "Saga Androïdes",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT"],
+    role: "Héros"
   },
   {
     id: 13,
@@ -105,7 +116,8 @@ export const characters = [
     species: "Cyborg",
     height: "170 cm",
     firstArc: "Saga Androïdes",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT","Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT","Dragon Ball Super"],
+    role: "Méchant"
   },
   {
     id: 13,
@@ -114,7 +126,8 @@ export const characters = [
     species: "Cyborg",
     height: "169 cm",
     firstArc: "Saga Androïdes",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"],
+    role: "Méchant"
   },
   {
     id: 14,
@@ -123,7 +136,8 @@ export const characters = [
     species: "Saiyan",
     height: "208 cm",
     firstArc: "Film",
-    animeAppearances: ["Dragon Ball Z", "Dragon Ball Super"]
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball Super"],
+    role: "Méchant"
   },
   {
     id: 15,
@@ -132,7 +146,8 @@ export const characters = [
     species: "Cyborg",
     height: "213 cm",
     firstArc: "Saga Cell",
-    animeAppearances: ["Dragon Ball Z"]
+    animeAppearances: ["Dragon Ball Z"],
+    role: "Méchant"
   },
   {
     id: 16,
@@ -141,7 +156,8 @@ export const characters = [
     species: "Humain",
     height: "178 cm",
     firstArc: "Saga Red Ribbon",
-    animeAppearances: ["Dragon Ball","Dragon Ball Z"]
+    animeAppearances: ["Dragon Ball","Dragon Ball Z"],
+    role: "Méchant"
   },
 ];
 

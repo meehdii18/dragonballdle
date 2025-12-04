@@ -132,7 +132,8 @@ function Game() {
       species: compareSpecies(guessed.species, target.species),
       height: compareHeight(guessed.height, target.height),
       firstArc: compareFirstArc(guessed.firstArc, target.firstArc),
-      animeAppearances: compareAnimeAppearances(guessed.animeAppearances, target.animeAppearances)
+      animeAppearances: compareAnimeAppearances(guessed.animeAppearances, target.animeAppearances),
+      role: guessed.role === target.role ? 'correct' : 'incorrect'
     };
   };
 
@@ -402,6 +403,19 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
       inputRef.current.focus();
     }
   };
+
+  const resetDebug = () => {
+    setGuesses([]);
+    setGameStatus('playing');
+    localStorage.removeItem('dragonballdle-guesses');
+    localStorage.removeItem('dragonballdle-date');
+    localStorage.removeItem('dailyCharacter');
+    localStorage.removeItem('characterDayId');
+    localStorage.removeItem('characterTime');
+
+    const newChar = getDailyChar();
+    setDailyCharacter(newChar);
+  }
 
   const dailyRandomChar = () => {
     const max = characters.length;
@@ -743,7 +757,7 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                       <Box as="th" p={2} fontWeight="bold">Nom</Box>
                       <Box as="th" p={2} fontWeight="bold">Espèce</Box>
                       <Box as="th" p={2} fontWeight="bold">Taille</Box>
-                      {/* Âge retiré */}
+                      <Box as="th" p={2} fontWeight="bold">Rôle</Box>
                       <Box as="th" p={2} fontWeight="bold">Première apparition</Box>
                       <Box as="th" p={2} fontWeight="bold">Séries</Box>
                     </Box>
@@ -810,7 +824,16 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
                       )}
                     </Box>
 
-                    {/* Colonne Âge retirée */}
+                    <Box
+                      as="td"
+                      pd={2}
+                      bgColor={guess.result.role === 'correct' ? 'green.500' : 'red.500'}
+                      opacity={0.7}
+                      borderRadius="md"
+                      textAlign="center"
+                    >
+                        {guess.character.role}
+                    </Box>
 
                     <Box 
                       as="td" 
@@ -874,6 +897,17 @@ const compareArcOrder = (guessedArc: string, targetArc: string): string => {
               <Text color="white" fontSize="sm" opacity={0.7} mb={2}>
                 Personnage du jour (Debug): {dailyCharacter.name}
               </Text>
+
+              <Button
+                size="sm"
+                variant="outline"
+                colorScheme='orange'
+                leftIcon={<RepeatClockIcon/>}
+                onClick={resetDebug}
+                alignSelf="flex-center"
+              >
+                Reset partie
+              </Button>
             
             </Flex>
           )}
