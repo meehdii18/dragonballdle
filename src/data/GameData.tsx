@@ -129,6 +129,16 @@ export const characters = [
     firstArc: "Saga Androïdes",
     animeAppearances: ["Dragon Ball Z", "Dragon Ball GT", "Dragon Ball Super"]
   },
+    {
+    id: 14,
+    name: "Broly",
+    image: "/images/characters/brolypng.png",
+    species: "Saiyan",
+    height: "208 cm",
+    age: "Inconnu",
+    firstArc: "Film",
+    animeAppearances: ["Dragon Ball Z", "Dragon Ball Super"]
+  },
 ];
 
 export const animeList = [

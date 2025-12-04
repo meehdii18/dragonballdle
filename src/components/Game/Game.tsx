@@ -264,7 +264,9 @@ const chronologicalArcs = [
   "Saga Resurrection F",
   "Saga Tournoi de Champa",
   "Saga Black Goku",
-  "Saga Tournoi du Pouvoir"
+  "Saga Tournoi du Pouvoir",
+
+  "Film"
 ];
 
 // Fonction qui compare la position chronologique de deux arcs
