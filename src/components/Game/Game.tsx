@@ -403,12 +403,11 @@ function Game() {
           </Text>
         </VStack>
         
-{/* GAME STATUS: PLAYING */}
+      {/* GAME STATUS: PLAYING */}
         {gameStatus === 'playing' && (
           <Box as="form" onSubmit={handleSubmit} width="100%" maxWidth="600px" mb="2rem" position="relative">
             <VStack spacing={4} width="100%">
               
-              {/* CORRECTION ICI : Le Popover englobe l'InputGroup */}
               <Popover 
                 isOpen={isPopoverOpen} 
                 autoFocus={false} 
@@ -417,7 +416,6 @@ function Game() {
                 initialFocusRef={inputRef}
               >
                 <PopoverTrigger>
-                  {/* Il faut une Box width="100%" pour que le trigger prenne toute la largeur */}
                   <Box width="100%">
                     <InputGroup size="lg" zIndex={10}>
                       <InputLeftElement pointerEvents="none">
@@ -457,7 +455,6 @@ function Game() {
                   </Box>
                 </PopoverTrigger>
 
-                {/* Le contenu du Popover reste le même, mais il est maintenant correctement placé */}
                 <PopoverContent 
                   bg="gray.800" 
                   borderColor="orange.500" 
