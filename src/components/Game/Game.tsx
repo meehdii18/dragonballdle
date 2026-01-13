@@ -24,7 +24,7 @@ import {
   SimpleGrid,
   Code
 } from '@chakra-ui/react';
-import { SearchIcon, CloseIcon, RepeatClockIcon, CheckCircleIcon, WarningIcon, SettingsIcon } from '@chakra-ui/icons';
+import { SearchIcon, CloseIcon, RepeatClockIcon, CheckCircleIcon, WarningIcon, SettingsIcon, ViewIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
 
 // --- Types ---
@@ -65,6 +65,7 @@ function Game() {
   const maxGuesses = 10;
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const listRef = useRef<HTMLUListElement>(null);
+  const hintThreshold = 5;
 
   useOutsideClick({
     ref: popoverRef,
@@ -522,7 +523,51 @@ function Game() {
           </Box>
         )}
 
-        {/* GAME STATUS: WON/LOST */}
+        {/* INDICES */}
+        {gameStatus === 'playing' && guesses.length >= hintThreshold && dailyCharacter && (
+          <SlideFade in={true} offsetY="20px" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <VStack 
+              spacing={3} 
+              p={4} 
+              bg="rgba(0, 0, 0, 0.6)" 
+              borderRadius="xl" 
+              border="1px solid" 
+              borderColor="orange.500"
+              boxShadow="0 0 15px rgba(237, 137, 54, 0.3)"
+              mb="2rem"
+              maxW="400px"
+              width="90%"
+              backdropFilter="blur(5px)"
+            >
+              <HStack color="orange.300" spacing={2}>
+                <ViewIcon w={5} h={5} />
+                <Text fontWeight="bold" letterSpacing="wide" fontSize="lg">INDICE DÉBLOQUÉ</Text>
+              </HStack>
+              <Text fontSize="sm" color="gray.300" textAlign="center">
+                Voici à quoi ressemble le personnage :
+              </Text>
+              <Box 
+                borderRadius="lg" 
+                overflow="hidden" 
+                border="2px solid" 
+                borderColor="orange.400"
+                boxShadow="0 0 20px rgba(0,0,0,0.5)"
+                bg="gray.800"
+              >
+                <Image 
+                  src={dailyCharacter.image} 
+                  alt="Indice" 
+                  boxSize="120px"
+                  objectFit="cover" 
+                  filter="blur(12px)" 
+                  transform="scale(1.1)"
+                />
+              </Box>
+            </VStack>
+          </SlideFade>
+        )}
+
+        {/* STATUS: VICTOIRE/DEFAITE*/}
         <SlideFade in={gameStatus !== 'playing'} offsetY="20px">
           {gameStatus === 'won' && dailyCharacter && (
             <VStack 
