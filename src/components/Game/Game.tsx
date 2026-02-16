@@ -22,7 +22,8 @@ import {
   Badge,
   SlideFade,
   SimpleGrid,
-  Code
+  Code,
+  ButtonGroup
 } from '@chakra-ui/react';
 import { SearchIcon, CloseIcon, RepeatClockIcon, CheckCircleIcon, WarningIcon, SettingsIcon, ViewIcon } from '@chakra-ui/icons';
 import { characters } from '../../data/GameData';
@@ -67,6 +68,8 @@ function Game() {
   const listRef = useRef<HTMLUListElement>(null);
   const hintThreshold = 5;
   const beforeHint = hintThreshold - guesses.length;
+  const [showBlur, setShowBlur] = useState<boolean>(true);
+  const [showColor, setShowColor] = useState<boolean>(false);
 
   useOutsideClick({
     ref: popoverRef,
@@ -587,10 +590,40 @@ function Game() {
                   alt="Indice" 
                   boxSize="120px"
                   objectFit="cover" 
-                  filter="blur(12px)" 
+                  filter={`${showBlur ? 'blur(12px)' : 'blur(0px)'}${ showColor ? 'grayscale(0%)' : 'grayscale(70%)'}`}
                   transform="scale(1.1)"
                 />
               </Box>
+              <ButtonGroup size="sm" variant="outline">
+                <Button
+                onClick={() => setShowColor(!showColor)}
+                colorScheme="orange" 
+                size="xs" 
+                width="full" 
+                fontSize="xs" 
+                borderRadius="full"
+                boxShadow="0 4px 14px 0 rgba(237, 137, 54, 0.39)"
+                _hover={{ transform: 'translateY(-2px)', boxShadow: "0 6px 20px rgba(237, 137, 54, 0.6)" }}
+                transition="all 0.2s"
+                variant={showColor ? "solid" : "outline"}
+                >
+                  Couleur
+                </Button>
+                <Button
+                onClick={() => setShowBlur(!showBlur)}
+                colorScheme="orange" 
+                size="xs" 
+                width="full" 
+                fontSize="xs" 
+                borderRadius="full"
+                boxShadow="0 4px 14px 0 rgba(237, 137, 54, 0.39)"
+                _hover={{ transform: 'translateY(-2px)', boxShadow: "0 6px 20px rgba(237, 137, 54, 0.6)" }}
+                transition="all 0.2s"
+                variant={showBlur ? "solid" : "outline"}
+                >
+                  Flou
+                </Button>
+              </ButtonGroup>
             </VStack>
           </SlideFade>
         )}
@@ -652,7 +685,7 @@ function Game() {
           <Box width="100%" animation="fadeIn 0.5s">
             <Flex justifyContent="space-between" alignItems="center" mb={4}>
               <Heading size="md" color="white" textTransform="uppercase" letterSpacing="2px" borderBottom="2px solid" borderColor="orange.500" pb={1}>
-                Historique ({guesses.length}/{maxGuesses})
+                Historique
               </Heading>
             </Flex>
 
