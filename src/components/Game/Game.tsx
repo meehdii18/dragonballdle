@@ -66,6 +66,7 @@ function Game() {
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const listRef = useRef<HTMLUListElement>(null);
   const hintThreshold = 5;
+  const beforeHint = hintThreshold - guesses.length;
 
   useOutsideClick({
     ref: popoverRef,
@@ -523,7 +524,34 @@ function Game() {
           </Box>
         )}
 
-        {/* INDICES */}
+        {/* INDICES INACTIF */}
+        {gameStatus === 'playing' && guesses.length < hintThreshold && dailyCharacter && (
+          <SlideFade in={true} offsetY="20px" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+            <VStack 
+              spacing={3} 
+              p={4} 
+              bg="rgba(0, 0, 0, 0.6)" 
+              borderRadius="xl" 
+              border="1px solid" 
+              borderColor="orange.500"
+              boxShadow="0 0 15px rgba(237, 137, 54, 0.3)"
+              mb="2rem"
+              maxW="400px"
+              width="90%"
+              backdropFilter="blur(5px)"
+            >
+              <HStack color="orange.300" spacing={2}>
+                <ViewIcon w={5} h={5} />
+                <Text fontWeight="bold" letterSpacing="wide" fontSize="lg">INDICE DÉBLOQUÉ DANS :</Text>
+              </HStack>
+              <Text fontSize="sm" color="gray.300" textAlign="center">
+                {beforeHint} essais.
+              </Text>
+            </VStack>
+          </SlideFade>
+        )}
+
+        {/* INDICES ACTIF */}
         {gameStatus === 'playing' && guesses.length >= hintThreshold && dailyCharacter && (
           <SlideFade in={true} offsetY="20px" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
             <VStack 
